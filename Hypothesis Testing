@@ -1,0 +1,51 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as stats
+df1=pd.read_csv('datasets/Golf.csv')
+df=df1.T
+df['mean']=df.apply(np.mean,axis=1)
+df['std']=df.apply(np.std,axis=1)
+df['stderror']=df['std']/np.sqrt(len(df1))
+#print(df)
+f,((ax1,ax2),(ax3,ax4))=plt.subplots(2,2)
+#First Normal dist. plot
+ax1.hist(df1.T.iloc[0],bins=10,density=True,color=['darkgray'])
+ax1.set_ylabel("Probabilty")
+ax1.set_xlabel("Current golf balls")
+ax1.set_title('Current golf balls distribution')
+ax1.set_yticks(np.arange(0,0.09,0.01))
+
+#Second Normal dist. PLot
+ax2.hist(df1.T.iloc[1],bins=10,density=True,color=['darkgray'])
+ax2.set_title('New golf balls Distribution')
+ax2.set_ylabel("Probabilty")
+ax2.set_xlabel("New golf balls")
+ax2.set_yticks(np.arange(0,0.09,0.01))
+
+#Bar graph of means and confidence intervals
+ax3.bar(1,df['mean'].iloc[0],yerr=df['stderror'][0]*2.55,label='Current',color=['gray'])
+ax3.bar(4,df['mean'].iloc[1],label='New',color=['darkgray'])
+t,p=stats.ttest_rel(df1['Current'],df1['New'])
+ax3.errorbar(x=4,y=df['mean'].iloc[1],yerr=df['stderror'][1]*2.55,capsize=10,color='black')
+ax3.errorbar(x=1,y=df['mean'].iloc[0],yerr=df['stderror'][0]*2.55,capsize=10,color='black')
+ax3.legend(loc='lower right')
+ax3.tick_params(labelbottom=False)
+ax3.text(x=0.5,y=300,s='Mean and 95% Confidence intervals of both golf balls',fontsize=12)
+ax3.set_ylabel('Mean Values')
+ax3.plot([1,4],[df['mean'].iloc[0],df['mean'].iloc[1]],color='r',marker='.')
+ax3.set_yticks(np.arange(0,400,50))
+ax3.set_xticks(np.arange(7))
+
+#Box plot for indicating outliers
+ax4.boxplot([df1.T.iloc[0],df1.T.iloc[1]])
+ax4.text(1.1,280,'Box plots of both golf balls',fontsize=12)
+ax4.set_xticklabels(['Current','New'])
+
+print(t)
+print(df['mean'][1]-df['mean'][0])
+print(df['std'])
+print(len(df1))
+print(stats.ttest_ind(df1['Current'],df1['New']))
+#print(stats.t.interval())
+plt.show()
